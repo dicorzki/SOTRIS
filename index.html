@@ -9,7 +9,35 @@
     <script src="https://unpkg.com/three@0.132.2/examples/js/controls/OrbitControls.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="style.css">
-   
+ <style>
+        :root {
+            --space-cadet: #2D3047;
+            --neon-blue: #4ECDC4;
+            --uranian-blue: #A8DADC;
+            --pale-pink: #FFCBF2;
+            --electric-purple: #7209B7;
+            --cyber-yellow: #FFD60A;
+            --gradient-bg: linear-gradient(135deg, #2D3047 0%, #1A1C2B 100%);
+        }
+
+
+        /* Tab System */
+        .tab-content {
+            display: none;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            align-content: start;
+        }
+
+        .tab-content.active {
+            display: grid;
+        }
+
+        .nav-item.active {
+            background: rgba(255, 255, 255, 0.2);
+            border-left: 4px solid var(--neon-blue);
+        }
+    </style>   
 </head>
 <body>
     <div class="dashboard">
