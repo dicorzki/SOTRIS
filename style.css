@@ -278,23 +278,7 @@ font-size: 3rem;
         height: 300px;
         padding: 1rem;
     }
-        /* Tab System */
-        .tab-content {
-            display: none;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
-            align-content: start;
-        }
-
-        .tab-content.active {
-            display: grid;
-        }
-
-        .nav-item.active {
-            background: rgba(255, 255, 255, 0.2);
-            border-left: 4px solid var(--neon-blue);
-        }
-    </style>
+      
     /* Animations */
     @keyframes float {
         0% { transform: translateY(0px); }
