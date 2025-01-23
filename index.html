@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SOTRIS - Advanced Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/three@0.132.2/build/three.min.js"></script>
+    <script src="https://unpkg.com/three@0.132.2/examples/js/controls/OrbitControls.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --space-cadet: #2D3047;
+            --neon-blue: #4ECDC4;
+            --uranian-blue: #A8DADC;
+            --pale-pink: #FFCBF2;
+            --electric-purple: #7209B7;
+            --cyber-yellow: #FFD60A;
+            --gradient-bg: linear-gradient(135deg, #2D3047 0%, #1A1C2B 100%);
+        }
+
+        /* ... (CSS sebelumnya tetap sama) ... */
+
+        /* Tab System */
+        .tab-content {
+            display: none;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            align-content: start;
+        }
+
+        .tab-content.active {
+            display: grid;
+        }
+
+        .nav-item.active {
+            background: rgba(255, 255, 255, 0.2);
+            border-left: 4px solid var(--neon-blue);
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Side Navigation -->
+        <nav class="sidenav glass">
+            <div class="logo">SOTRIS</div>
+            <div class="nav-item active" data-tab="dashboard">
+                <span>📊</span> Dashboard
+            </div>
+            <div class="nav-item" data-tab="monitoring">
+                <span>🌐</span> Live Monitoring
+            </div>
+            <div class="nav-item" data-tab="analytics">
+                <span>⚡</span> Energy Analytics
+            </div>
+            <div class="nav-item" data-tab="controls">
+                <span>🔧</span> System Controls
+            </div>
+            <div class="nav-item" data-tab="performance">
+                <span>📈</span> Performance
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Dashboard Tab -->
+            <div id="dashboard" class="tab-content active">
+                <div class="glass" id="solar-visual">
+                    <div class="panel-status glass">
+                        <h3>🛰️ Panel Orientation</h3>
+                        <div class="metric">142°</div>
+                        <div class="pulse">🟢 Optimal Position</div>
+                    </div>
+                </div>
+
+                <div class="data-card glass">
+                    <h2>⚡ Power Generation</h2>
+                    <div class="metric">2.4kW</div>
+                    <canvas id="powerChart"></canvas>
+                </div>
+
+                <div class="data-card glass">
+                    <h2>🌍 Environment</h2>
+                    <div class="live-data">
+                        <div class="data-point glass">
+                            <span>🌡️</span>
+                            <div>
+                                <div>32°C</div>
+                                <small>Temperature</small>
+                            </div>
+                        </div>
+                        <div class="data-point glass">
+                            <span>💧</span>
+                            <div>
+                                <div>65%</div>
+                                <small>Humidity</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Live Monitoring Tab -->
+            <div id="monitoring" class="tab-content">
+                <div class="glass data-card">
+                    <h2>📡 Real-time Data Stream</h2>
+                    <div class="live-data" id="dataStream"></div>
+                </div>
+                
+                <div class="glass data-card">
+                    <h2>🌦️ Weather Integration</h2>
+                    <div id="weatherData">
+                        <div class="data-point glass">
+                            <span>🌤️</span>
+                            <div>
+                                <div>Sunny</div>
+                                <small>Current Weather</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Energy Analytics Tab -->
+            <div id="analytics" class="tab-content">
+                <div class="glass data-card">
+                    <h2>📊 Energy Consumption</h2>
+                    <canvas id="consumptionChart"></canvas>
+                </div>
+                
+                <div class="glass data-card">
+                    <h2>🔋 Battery Health</h2>
+                    <canvas id="batteryChart"></canvas>
+                </div>
+            </div>
+
+            <!-- System Controls Tab -->
+            <div id="controls" class="tab-content">
+                <div class="glass data-card">
+                    <h2>🎛️ Advanced Controls</h2>
+                    <div class="controls-grid">
+                        <div class="control-group">
+                            <label>Panel Tilt</label>
+                            <input type="range" class="cyber-slider" id="tiltControl" min="0" max="180" value="142">
+                        </div>
+                        <button class="glass" id="emergencyStop">⛔ Emergency Stop</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Performance Tab -->
+            <div id="performance" class="tab-content">
+                <div class="glass data-card">
+                    <h2>📈 System Efficiency</h2>
+                    <canvas id="efficiencyChart"></canvas>
+                </div>
+                
+                <div class="glass data-card">
+                    <h2>🤖 AI Recommendations</h2>
+                    <div id="aiRecommendations">
+                        <div class="data-point glass">
+                            <span>💡</span>
+                            <div>Adjust panel angle to 158° for optimal performance</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Initialize 3D Visualization
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(document.getElementById('solar-visual').clientWidth, 300);
+        document.getElementById('solar-visual').appendChild(renderer.domElement);
+
+        // Create Solar Panel Model
+        const geometry = new THREE.BoxGeometry(2, 0.2, 4);
+        const material = new THREE.MeshPhongMaterial({ 
+            color: 0x4ECDC4,
+            emissive: 0x1A1C2B,
+            specular: 0xFFFFFF,
+            shininess: 100
+        });
+        const panel = new THREE.Mesh(geometry, material);
+        scene.add(panel);
+
+        // Lighting Setup
+        const ambientLight = new THREE.AmbientLight(0xFFFFFF, 0.5);
+        scene.add(ambientLight);
+        const directionalLight = new THREE.DirectionalLight(0xFFFFFF, 1);
+        directionalLight.position.set(5, 5, 5);
+        scene.add(directionalLight);
+
+        camera.position.z = 5;
+        new THREE.OrbitControls(camera, renderer.domElement);
+
+        // Animation Loop
+        function animate() {
+            requestAnimationFrame(animate);
+            panel.rotation.x += 0.005;
+            panel.rotation.y += 0.005;
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        // Tab Navigation System
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', function() {
+                // Remove active class from all items
+                document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+                
+                // Add active class to clicked item
+                this.classList.add('active');
+                
+                // Hide all tabs
+                document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+                
+                // Show selected tab
+                const tabId = this.dataset.tab;
+                document.getElementById(tabId).classList.add('active');
+            });
+        });
+
+        // Initialize Charts
+        const chartConfig = {
+            power: new Chart(document.getElementById('powerChart'), {
+                type: 'line',
+                data: {
+                    labels: ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00'],
+                    datasets: [{
+                        label: 'Power Output',
+                        data: [0, 1.2, 2.4, 2.8, 2.1, 0.5],
+                        borderColor: '#4ECDC4',
+                        tension: 0.4
+                    }]
+                }
+            }),
+            
+            efficiency: new Chart(document.getElementById('efficiencyChart'), {
+                type: 'radar',
+                data: {
+                    labels: ['Efficiency', 'Uptime', 'Safety', 'Output'],
+                    datasets: [{
+                        label: 'Performance',
+                        data: [95, 92, 85, 90],
+                        backgroundColor: 'rgba(78, 205, 196, 0.2)'
+                    }]
+                }
+            })
+        }
+          // Perbaikan inisialisasi chart untuk Energy Analytics
+    // Tambahkan di bagian initialize Charts
+    new Chart(document.getElementById('consumptionChart'), {
+        type: 'bar',
+        data: {
+            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May'],
+            datasets: [{
+                label: 'Energy Consumption (kWh)',
+                data: [320, 450, 600, 550, 700],
+                backgroundColor: '#4ECDC4',
+                borderColor: '#2D3047',
+                borderWidth: 2
+            }]
+        }
+    });
+
+    new Chart(document.getElementById('batteryChart'), {
+        type: 'doughnut',
+        data: {
+            labels: ['Used', 'Remaining'],
+            datasets: [{
+                data: [65, 35],
+                backgroundColor: ['#4ECDC4', '#2D3047'],
+                borderWidth: 0
+            }]
+        }
+    });
+
+    // Perbaikan positioning 3D Canvas
+    const threeContainer = document.getElementById('solar-visual');
+    threeContainer.style.position = 'relative';
+    threeContainer.style.zIndex = '100'; // Pastikan di bawah panel-status
+        ;
+
+        // Real-time Data Simulation
+        setInterval(() => {
+            // Update panel angle
+            const angleElement = document.querySelector('#dashboard .metric');
+            const currentAngle = parseInt(angleElement.textContent);
+            const newAngle = (currentAngle + 1) % 180;
+            angleElement.textContent = `${newAngle}°`;
+            panel.rotation.y = THREE.MathUtils.degToRad(newAngle);
+
+            // Update data stream
+            const newData = `
+                <div class="data-point glass">
+                    <span>⚡</span>
+                    <div>
+                        <div>${(Math.random() * 5).toFixed(2)}kW</div>
+                        <small>${new Date().toLocaleTimeString()}</small>
+                    </div>
+                </div>
+            `;
+            document.getElementById('dataStream').innerHTML = newData + document.getElementById('dataStream').innerHTML;
+        }, 2000);
+
+        // Control System
+        document.getElementById('tiltControl').addEventListener('input', function(e) {
+            panel.rotation.y = THREE.MathUtils.degToRad(e.target.value);
+            document.querySelector('#dashboard .metric').textContent = `${e.target.value}°`;
+        });
+    </script>
+</body>
+</html>

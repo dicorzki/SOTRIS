@@ -1,0 +1,331 @@
+<style>
+    :root {
+        --space-cadet: #2D3047;
+        --neon-blue: #4ECDC4;
+        --uranian-blue: #A8DADC;
+        --pale-pink: #FFCBF2;
+        --electric-purple: #7209B7;
+        --cyber-yellow: #FFD60A;
+        --gradient-bg: linear-gradient(135deg, #2D3047 0%, #1A1C2B 100%);
+        --glass-bg: rgba(255, 255, 255, 0.08);
+        --text-gradient: linear-gradient(45deg, var(--neon-blue), var(--pale-pink));
+        --accent-gradient: linear-gradient(135deg, var(--neon-blue) 0%, var(--electric-purple) 100%);
+    }
+
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: 'Inter', system-ui;
+    }
+
+    body {
+        background: var(--gradient-bg);
+        color: white;
+        min-height: 100vh;
+        overflow-x: hidden;
+        line-height: 1.6;
+    }
+
+    /* Glassmorphism Effect */
+    .glass {
+        background: var(--glass-bg);
+        backdrop-filter: blur(20px) saturate(180%);
+        -webkit-backdrop-filter: blur(20px) saturate(180%);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 16px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* Dashboard Layout */
+    .dashboard {
+        display: grid;
+        grid-template-columns: 280px 1fr;
+        gap: 2rem;
+        padding: 2rem;
+        min-height: 100vh;
+        max-width: 1600px;
+        margin: 0 auto;
+    }
+
+    /* Side Navigation */
+    .sidenav {
+        position: sticky;
+        top: 2rem;
+        height: calc(100vh - 4rem);
+        padding: 2rem 1.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .logo {
+        
+        font-weight: 800;
+        background: var(--text-gradient);
+        -webkit-background-clip: text;
+        letter-spacing: -1px;
+        margin-bottom: 2rem;
+        font-size: 2.5rem !important;
+        -webkit-text-fill-color: var(--neon-blue) !important;
+        text-shadow: 0 0 20px rgba(78, 205, 196, 0.7);
+        backdrop-filter: none !important;
+    }
+
+    .nav-item {
+        padding: 1rem 1.5rem;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .nav-item:not(.active):hover {
+        background: rgba(255, 255, 255, 0.1);
+        transform: translateX(8px);
+    }
+
+    .nav-item.active {
+        background: linear-gradient(90deg, rgba(78, 205, 196, 0.15) 0%, transparent 100%);
+        border-left: 4px solid var(--neon-blue);
+    }
+
+    .nav-item.active::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 3px;
+        height: 100%;
+        background: var(--accent-gradient);
+    }
+
+    /* Main Content */
+    .main-content {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+        align-content: start;
+    }
+
+    /* 3D Visualization Container */
+    #solar-visual {
+        width: 100%;
+        height: 400px;
+        border-radius: 20px;
+        overflow: hidden;
+        position: relative;
+        border: 1px solid rgba(78, 205, 196, 0.3);
+        box-shadow: 0 0 40px rgba(78, 205, 196, 0.1);
+    }
+
+#solar-visual canvas {
+    filter: blur(0.5px); /* Berikan sedikit blur pada canvas 3D */
+    transform: translateZ(0); /* Trigger GPU acceleration */
+}
+
+    .panel-status {
+        position: absolute;
+        bottom: 1.5rem;
+        left: 1.5rem;
+        padding: 1.5rem;
+        z-index: 1000;
+        background: rgba(0, 0, 0, 0.6) !important;
+        border-radius: 12px;
+        backdrop-filter: none;
+      
+    }
+
+.panel-status .metric {
+font-size: 3rem;
+    font-weight: 800; /* Tambahkan ketebalan font */
+    color: #4ECDC4;
+    text-shadow: 
+        0 0 0px rgba(78, 205, 196, 0.7),
+        0 0 15px rgba(255, 255, 255, 0.3); /* Tambahkan multiple shadow */
+    letter-spacing: -2px;
+    margin: 0.5rem 0;
+    -webkit-font-smoothing: antialiased; /* Optimasi rendering font */
+    text-rendering: geometricPrecision;
+    }
+
+    /* Data Cards */
+    .data-card {
+        padding: 2rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .data-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    .metric {
+        font-size: 2.75rem;
+        font-weight: 700;
+        background: var(--text-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        letter-spacing: -1px;
+        line-height: 1.2;
+    }
+
+    /* Live Data Stream */
+    .live-data {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 1.5rem;
+        padding: 1rem;
+    }
+
+    .data-point {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        padding: 1.5rem;
+        border-radius: 14px;
+        transition: transform 0.3s ease;
+    }
+
+    .data-point:hover {
+        transform: translateY(-3px);
+    }
+
+    /* Charts Customization */
+    canvas {
+        max-width: 100%;
+        margin-top: 1.5rem;
+    }
+
+    .chart-container {
+        position: relative;
+        height: 300px;
+    }
+
+    /* Controls */
+    .controls-grid {
+        display: grid;
+        gap: 2rem;
+        padding: 1.5rem;
+    }
+
+    .cyber-slider {
+        width: 100%;
+        height: 10px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 5px;
+        outline: none;
+        -webkit-appearance: none;
+        transition: all 0.3s ease;
+    }
+
+    .cyber-slider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: 24px;
+        height: 24px;
+        background: var(--neon-blue);
+        border-radius: 50%;
+        cursor: pointer;
+        box-shadow: 0 0 20px rgba(78, 205, 196, 0.5);
+        transition: all 0.3s ease;
+    }
+
+    .cyber-slider::-webkit-slider-thumb:hover {
+        transform: scale(1.1);
+        box-shadow: 0 0 25px rgba(78, 205, 196, 0.8);
+    }
+
+
+    /* Buttons */
+    button.glass {
+        padding: 1rem 2rem;
+        border: none;
+        border-radius: 12px;
+        background: var(--glass-bg);
+        color: white;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    button.glass:hover {
+        background: rgba(78, 205, 196, 0.2);
+        transform: translateY(-2px);
+    }
+
+    button.glass:active {
+        transform: translateY(1px);
+    }
+
+ #consumptionChart, 
+    #batteryChart {
+        background: rgba(0, 0, 0, 0.3); /* Tambahkan background */
+        border-radius: 12px;
+        padding: 1rem;
+        margin-top: 1rem;
+    }
+
+    .chart-container {
+        position: relative;
+        height: 300px;
+        padding: 1rem;
+    }
+
+    /* Animations */
+    @keyframes float {
+        0% { transform: translateY(0px); }
+        50% { transform: translateY(-10px); }
+        100% { transform: translateY(0px); }
+    }
+
+    @keyframes glow {
+        0% { box-shadow: 0 0 20px rgba(78, 205, 196, 0.1); }
+        50% { box-shadow: 0 0 40px rgba(78, 205, 196, 0.3); }
+        100% { box-shadow: 0 0 20px rgba(78, 205, 196, 0.1); }
+    }
+
+    .pulse {
+        animation: glow 3s infinite;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 1200px) {
+        .dashboard {
+            grid-template-columns: 1fr;
+            padding: 1.5rem;
+        }
+
+        .sidenav {
+            position: relative;
+            height: auto;
+            padding: 1.5rem;
+        }
+
+        #solar-visual {
+            height: 350px;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .metric {
+            font-size: 2rem;
+        }
+
+        .nav-item {
+            padding: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .data-card {
+            padding: 1.5rem;
+        }
+    }
+</style>
